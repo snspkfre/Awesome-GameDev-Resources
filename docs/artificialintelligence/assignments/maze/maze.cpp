@@ -48,46 +48,47 @@ int main()
   }
 
 
-  stack<Cell> st;
-  st.push(arr[0][0]);
+  stack<Cell*> st;
+  st.push(&arr[0][0]);
   while(!st.empty())
   {
-    st.top().visited = true;
-    vector<Cell*> neighbors = findNeighbors(arr, st.top().x, st.top().y, x, y);
+    st.top()->visited = true;
+    vector<Cell*> neighbors = findNeighbors(arr, st.top()->x, st.top()->y, x, y);
     if(neighbors.empty())
     {
       st.pop();
-      continue;
     }
+    else
+    {
+      Cell *selectedNeighbor = neighbors[0];
+      if(neighbors.size() != 1)
+      {
+        selectedNeighbor = neighbors[Random[s++] % neighbors.size()];
+        if(s >= RandomLength) s = 0;
+      }
 
-    Cell selectedNeighbor = *neighbors[0];
-    if(neighbors.size() != 1)
-    {
-      selectedNeighbor = *neighbors[Random[s++] % neighbors.size()];
-      if(s >= RandomLength) s = 0;
+      if(selectedNeighbor->x > st.top()->x)
+      {
+        st.top()->right = false;
+        selectedNeighbor->left = false;
+      }
+      else if(selectedNeighbor->x < st.top()->x)
+      {
+        st.top()->left = false;
+        selectedNeighbor->right = false;
+      }
+      else if(selectedNeighbor->y > st.top()->y)
+      {
+        st.top()->down = false;
+        selectedNeighbor->up = false;
+      }
+      else if(selectedNeighbor->y < st.top()->y)
+      {
+        st.top()->up = false;
+        selectedNeighbor->down = false;
+      }
+      st.push(selectedNeighbor);
     }
-
-    if(selectedNeighbor.x > st.top().x)
-    {
-      st.top().right = false;
-      selectedNeighbor.left = false;
-    }
-    else if(selectedNeighbor.x < st.top().x)
-    {
-      st.top().left = false;
-      selectedNeighbor.right = false;
-    }
-    else if(selectedNeighbor.y > st.top().y)
-    {
-      st.top().down = false;
-      selectedNeighbor.up = false;
-    }
-    else if(selectedNeighbor.y < st.top().y)
-    {
-      st.top().up = false;
-      selectedNeighbor.down = false;
-    }
-    st.push(selectedNeighbor);
   }
 
   //maze top

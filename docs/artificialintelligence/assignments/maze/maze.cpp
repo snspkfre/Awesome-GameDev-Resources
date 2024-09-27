@@ -16,11 +16,11 @@ struct Cell
   bool up, down, left, right, visited;
 };
 
-vector<Cell*> findNeighbors(Cell** arr, int x, int y, int sizeX, int sizeY);
+vector<Cell*> findNeighbors(const vector<vector<Cell*>>& arr, int x, int y, int sizeX, int sizeY);
 
 int main()
 {
-  int x, y, s;
+  int Columns, Rows, s;
   constexpr int RandomLength = 100;
   int Random[RandomLength] =
   {
@@ -31,56 +31,25 @@ int main()
   };
 
   //Fill Nodes
-  cin >> x >> y >> s;
+  cin >> Columns >> Rows >> s;
+  vector<vector<Cell*>> arr(Rows, vector<Cell*>(Columns));
 
-  Cell** arr = new Cell*[x];
-  for(int i = 0; i < x; i++)
+  for(int i = 0; i < Rows; ++i)
   {
-    arr[i] = new Cell[y];
-  }
-
-  for(int i = 0; i < x; i++)
-  {
-    for(int j = 0; j < y; j++)
+    for(int j = 0; j < Columns; j++)
     {
-      arr[i][j] = Cell(i, j);
+      arr[i][j] = new Cell(j, i);
     }
   }
 
 
   stack<Cell*> st;
-  st.push(&arr[0][0]);
+  st.push(arr[0][0]);
+
   while(!st.empty())
   {
-
-    //-----------------------------------------------------------------------------------------------
-    //maze top
-    for(int i = 0; i < x; i++)
-    {
-      cout << " ";
-      if(arr[0][i].up) cout << "_";
-      else cout << " ";
-    }
-
-    cout << "  " << endl;
-
-    //maze core
-    for(int i = 0; i < y; i++)
-    {
-      for(int j = 0; j < x; j++)
-      {
-        if(arr[j][i].left) cout << "|";
-        else cout << " ";
-        if(arr[j][i].down) cout << "_";
-        else cout << " ";
-      }
-      cout << "| " << endl;
-    }
-    //-------------------------------------------------------------------------------------
-
-
     st.top()->visited = true;
-    vector<Cell*> neighbors = findNeighbors(arr, st.top()->x, st.top()->y, x, y);
+    vector<Cell*> neighbors = findNeighbors(arr, st.top()->x, st.top()->y, Columns, Rows);
     if(neighbors.empty())
     {
       st.pop();
@@ -92,8 +61,7 @@ int main()
         selectedNeighbor = neighbors.front();
       else
       {
-        selectedNeighbor = neighbors[(Random[s]+1) % (int)neighbors.size()];
-        s++;
+        selectedNeighbor = neighbors[(Random[s++]) % (int)neighbors.size()];
         if(s >= RandomLength) s = 0;
       }
 
@@ -122,52 +90,54 @@ int main()
   }
 
   //maze top
-  for(int i = 0; i < x; i++)
+  for(int i = 0; i < Columns; ++i)
   {
     cout << " ";
-    if(arr[0][i].up) cout << "_";
+    if(arr[0][i]->up) cout << "_";
     else cout << " ";
   }
 
   cout << "  " << endl;
 
   //maze core
-  for(int i = 0; i < y; i++)
+  for(int i = 0; i < Rows; ++i)
   {
-    for(int j = 0; j < x; j++)
+    for(int j = 0; j < Columns; j++)
     {
-      if(arr[j][i].left) cout << "|";
+      if(arr[i][j]->left) cout << "|";
       else cout << " ";
-      if(arr[j][i].down) cout << "_";
+      if(arr[i][j]->down) cout << "_";
       else cout << " ";
     }
     cout << "| " << endl;
   }
 
   //cleaning to avoid data leaks
-  for(int i = 0; i < x; i++)
+  for (int i = 0; i < Rows; ++i)
   {
-    delete[] arr[i];
+    for (int j = 0; j < Columns; j++)
+    {
+      delete arr[i][j];
+    }
   }
-  delete[] arr;
 
   return 0;
 }
 
-vector<Cell*> findNeighbors(Cell** arr, int x, int y, int sizeX, int sizeY)
+vector<Cell*> findNeighbors(const vector<vector<Cell*>>& arr, const int x, const int y, const int sizeX, const int sizeY)
 {
   vector<Cell*> neighbors;
-  if(y != 0 && !arr[y-1][x].visited) // up
-    neighbors.push_back(&arr[y-1][x]);
+  if(y - 1 >= 0 && !arr[y-1][x]->visited) // up
+    neighbors.push_back(arr[y-1][x]);
 
-  if(x != sizeX - 1 && !arr[y][x+1].visited) // right
-    neighbors.push_back(&arr[y][x+1]);
+  if(x + 1 < sizeX && !arr[y][x+1]->visited) // right
+    neighbors.push_back(arr[y][x+1]);
 
-  if(y != sizeY - 1 && !arr[y+1][x].visited) // down
-    neighbors.push_back(&arr[y+1][x]);
+  if(y + 1 < sizeY && !arr[y+1][x]->visited) // down
+    neighbors.push_back(arr[y+1][x]);
 
-  if(x != 0 && !arr[y][x-1].visited) // left
-    neighbors.push_back(&arr[y][x-1]);
+  if(x - 1 >= 0 && !arr[y][x-1]->visited) // left
+    neighbors.push_back(arr[y][x-1]);
 
   return neighbors;
 }

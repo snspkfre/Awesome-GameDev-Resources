@@ -10,17 +10,17 @@ struct Cell
   {
     x = X;
     y = Y;
-    up = true, down = true, left = true, right = true, visited = false;
+    up = true, left = true, visited = false;
   }
   int x, y;
-  bool up, down, left, right, visited;
+  bool up, left, visited;
 };
 
 vector<Cell*> findNeighbors(const vector<vector<Cell*>>& arr, int x, int y, int sizeX, int sizeY);
 
 int main()
 {
-  int Columns, Rows, s;
+  int x, y, s;
   constexpr int RandomLength = 100;
   int Random[RandomLength] =
   {
@@ -31,12 +31,12 @@ int main()
   };
 
   //Fill Nodes
-  cin >> Columns >> Rows >> s;
-  vector<vector<Cell*>> arr(Rows, vector<Cell*>(Columns));
+  cin >> x >> y >> s;
+  vector<vector<Cell*>> arr(y, vector<Cell*>(x));
 
-  for(int i = 0; i < Rows; ++i)
+  for(int i = 0; i < y; ++i)
   {
-    for(int j = 0; j < Columns; j++)
+    for(int j = 0; j < x; j++)
     {
       arr[i][j] = new Cell(j, i);
     }
@@ -49,7 +49,7 @@ int main()
   while(!st.empty())
   {
     st.top()->visited = true;
-    vector<Cell*> neighbors = findNeighbors(arr, st.top()->x, st.top()->y, Columns, Rows);
+    vector<Cell*> neighbors = findNeighbors(arr, st.top()->x, st.top()->y, x, y);
     if(neighbors.empty())
     {
       st.pop();
@@ -67,30 +67,26 @@ int main()
 
       if(selectedNeighbor->x > st.top()->x)
       {
-        st.top()->right = false;
         selectedNeighbor->left = false;
       }
       else if(selectedNeighbor->x < st.top()->x)
       {
         st.top()->left = false;
-        selectedNeighbor->right = false;
       }
       else if(selectedNeighbor->y > st.top()->y)
       {
-        st.top()->down = false;
         selectedNeighbor->up = false;
       }
       else if(selectedNeighbor->y < st.top()->y)
       {
         st.top()->up = false;
-        selectedNeighbor->down = false;
       }
       st.push(selectedNeighbor);
     }
   }
 
   //maze top
-  for(int i = 0; i < Columns; ++i)
+  for(int i = 0; i < x; ++i)
   {
     cout << " ";
     if(arr[0][i]->up) cout << "_";
@@ -100,22 +96,22 @@ int main()
   cout << "  " << endl;
 
   //maze core
-  for(int i = 0; i < Rows; ++i)
+  for(int i = 0; i < y; ++i)
   {
-    for(int j = 0; j < Columns; j++)
+    for(int j = 0; j < x; j++)
     {
       if(arr[i][j]->left) cout << "|";
       else cout << " ";
-      if(arr[i][j]->down) cout << "_";
+      if(i == y - 1 || arr[i+1][j]->up) cout << "_";
       else cout << " ";
     }
     cout << "| " << endl;
   }
 
   //cleaning to avoid data leaks
-  for (int i = 0; i < Rows; ++i)
+  for (int i = 0; i < y; ++i)
   {
-    for (int j = 0; j < Columns; j++)
+    for (int j = 0; j < x; j++)
     {
       delete arr[i][j];
     }
